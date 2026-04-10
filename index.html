@@ -69,6 +69,138 @@
             letter-spacing: 0.15em;
             color: rgba(180, 200, 255, 0.7);
         }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(5, 5, 20, 0.85);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: radial-gradient(ellipse at 50% 0%, rgba(100, 60, 200, 0.3), transparent 70%),
+                        linear-gradient(170deg, #1a1040, #0d0d2b);
+            border: 1px solid rgba(160, 120, 255, 0.3);
+            border-radius: 20px;
+            padding: 2.5rem 2rem 2rem;
+            text-align: center;
+            max-width: 380px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 0 60px rgba(120, 80, 220, 0.3), 0 0 120px rgba(80, 40, 180, 0.15);
+            animation: modalIn 0.4s ease-out;
+        }
+
+        @keyframes modalIn {
+            0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-sparkles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            border-radius: 20px;
+            pointer-events: none;
+        }
+
+        .modal-sparkles span {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: rgba(200, 180, 255, 0.8);
+            animation: sparkleFloat 3s ease-in-out infinite;
+        }
+
+        .modal-sparkles span:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+        .modal-sparkles span:nth-child(2) { left: 85%; top: 15%; animation-delay: 0.5s; }
+        .modal-sparkles span:nth-child(3) { left: 20%; top: 75%; animation-delay: 1s; }
+        .modal-sparkles span:nth-child(4) { left: 75%; top: 80%; animation-delay: 1.5s; }
+        .modal-sparkles span:nth-child(5) { left: 50%; top: 10%; animation-delay: 0.8s; }
+        .modal-sparkles span:nth-child(6) { left: 90%; top: 50%; animation-delay: 2s; }
+
+        @keyframes sparkleFloat {
+            0%, 100% { opacity: 0.3; transform: translateY(0) scale(1); }
+            50% { opacity: 1; transform: translateY(-8px) scale(1.5); }
+        }
+
+        .wizard-img {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1rem;
+            filter: drop-shadow(0 0 20px rgba(160, 120, 255, 0.5));
+        }
+
+        .modal h2 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: rgba(220, 200, 255, 0.95);
+            margin-bottom: 1.2rem;
+            letter-spacing: 0.05em;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            font-size: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(160, 120, 255, 0.3);
+            background: rgba(20, 15, 50, 0.8);
+            color: #e0d8ff;
+            text-align: center;
+            letter-spacing: 0.1em;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .modal input:focus {
+            border-color: rgba(160, 120, 255, 0.7);
+            box-shadow: 0 0 20px rgba(120, 80, 220, 0.3);
+        }
+
+        .modal input.wrong {
+            border-color: rgba(255, 80, 80, 0.6);
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .modal-hint {
+            font-size: 0.8rem;
+            color: rgba(180, 160, 220, 0.5);
+            margin-top: 0.8rem;
+            font-style: italic;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 0.8rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: rgba(180, 160, 220, 0.5);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0;
+        }
+
+        .modal-close:hover {
+            color: rgba(220, 200, 255, 0.9);
+        }
     </style>
 </head>
 <body>
@@ -76,9 +208,86 @@
     <div class="stars"><canvas id="stars"></canvas></div>
     <div class="content">
         <h1>tmcn.us</h1>
-        <p class="tagline">building the future, one <a href="/MemoryGame/" style="color: rgba(200, 180, 255, 0.9); text-decoration: none; border-bottom: 1px solid rgba(200, 180, 255, 0.4); transition: color 0.2s, border-color 0.2s;">game</a> at a time</p>
+        <p class="tagline">building the future, one <a href="#" id="game-link" style="color: rgba(200, 180, 255, 0.9); text-decoration: none; border-bottom: 1px solid rgba(200, 180, 255, 0.4); transition: color 0.2s, border-color 0.2s;">game</a> at a time</p>
     </div>
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-sparkles">
+                <span></span><span></span><span></span>
+                <span></span><span></span><span></span>
+            </div>
+            <svg class="wizard-img" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <!-- Hat -->
+                <polygon points="60,2 42,50 78,50" fill="#2a1860" stroke="#7c5cbf" stroke-width="1"/>
+                <ellipse cx="60" cy="50" rx="22" ry="5" fill="#2a1860" stroke="#7c5cbf" stroke-width="1"/>
+                <!-- Stars on hat -->
+                <circle cx="55" cy="20" r="2" fill="#ffdd57" opacity="0.9"/>
+                <circle cx="65" cy="32" r="1.5" fill="#ffdd57" opacity="0.7"/>
+                <circle cx="52" cy="38" r="1" fill="#ffdd57" opacity="0.8"/>
+                <!-- Face -->
+                <circle cx="60" cy="62" r="14" fill="#f0d5b0"/>
+                <!-- Eyes -->
+                <circle cx="55" cy="60" r="2" fill="#2a1860"/>
+                <circle cx="65" cy="60" r="2" fill="#2a1860"/>
+                <circle cx="55.5" cy="59.5" r="0.7" fill="white"/>
+                <circle cx="65.5" cy="59.5" r="0.7" fill="white"/>
+                <!-- Eyebrows -->
+                <path d="M51,56 Q55,53 59,56" fill="none" stroke="#8a7060" stroke-width="1"/>
+                <path d="M61,56 Q65,53 69,56" fill="none" stroke="#8a7060" stroke-width="1"/>
+                <!-- Nose -->
+                <ellipse cx="60" cy="64" rx="2" ry="2.5" fill="#e0c0a0"/>
+                <!-- Smile -->
+                <path d="M55,69 Q60,73 65,69" fill="none" stroke="#8a6050" stroke-width="1" stroke-linecap="round"/>
+                <!-- Beard -->
+                <path d="M46,68 Q48,85 54,95 Q58,100 60,100 Q62,100 66,95 Q72,85 74,68" fill="#e8e0d8" stroke="#d0c8c0" stroke-width="0.5"/>
+                <path d="M50,75 Q55,78 60,76" fill="none" stroke="#d0c8c0" stroke-width="0.5"/>
+                <path d="M60,76 Q65,78 70,75" fill="none" stroke="#d0c8c0" stroke-width="0.5"/>
+                <path d="M52,82 Q57,85 62,83" fill="none" stroke="#d0c8c0" stroke-width="0.5"/>
+                <!-- Robe -->
+                <path d="M42,76 L30,115 L90,115 L78,76" fill="#1a1050" stroke="#5a3cbf" stroke-width="0.5"/>
+                <!-- Staff glow -->
+                <circle cx="28" cy="45" r="6" fill="rgba(160,120,255,0.3)"/>
+                <circle cx="28" cy="45" r="3" fill="rgba(200,180,255,0.6)"/>
+                <!-- Staff -->
+                <line x1="28" y1="48" x2="35" y2="115" stroke="#8a7060" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <h2>First, say the magic word...</h2>
+            <input type="text" id="magic-input" placeholder="speak, friend..." autocomplete="off" />
+            <p class="modal-hint">the wizard awaits your incantation</p>
+        </div>
+    </div>
+
     <script>
+        // Magic word modal
+        document.getElementById('game-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('magic-input').value = '';
+            document.getElementById('magic-input').classList.remove('wrong');
+            setTimeout(() => document.getElementById('magic-input').focus(), 100);
+        });
+
+        document.getElementById('magic-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (this.value.trim().toLowerCase() === 'please wish') {
+                    document.getElementById('modal').classList.remove('active');
+                    window.location.href = '/MemoryGame/';
+                } else {
+                    this.classList.add('wrong');
+                    setTimeout(() => this.classList.remove('wrong'), 400);
+                }
+            }
+        });
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
         const canvas = document.getElementById('stars');
         const ctx = canvas.getContext('2d');
         let w, h, particles;
