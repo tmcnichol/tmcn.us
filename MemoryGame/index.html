@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Game</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #e0e0e0;
+    }
+
+    h1 {
+      margin-bottom: 0.5rem;
+      font-size: 2rem;
+      color: #e94560;
+    }
+
+    .stats {
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+      display: flex;
+      gap: 2rem;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      max-width: 600px;
+      width: 100%;
+      padding: 0 1rem;
+    }
+
+    .card {
+      aspect-ratio: 1;
+      cursor: pointer;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      transition: transform 0.25s ease-in-out, background 0.25s;
+      background: linear-gradient(135deg, #16213e, #0f3460);
+      border: 2px solid #0f3460;
+      user-select: none;
+    }
+
+    .card:active {
+      transform: scale(0.95);
+    }
+
+    .card.flipping {
+      transform: rotateY(90deg);
+    }
+
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card .icon {
+      display: none;
+    }
+
+    .card .question {
+      font-size: 2.5rem;
+      color: #e94560;
+    }
+
+    .card.show-icon {
+      background: linear-gradient(135deg, #533483, #0f3460);
+      border-color: #e94560;
+    }
+
+    .card.show-icon .icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transform: scaleX(-1);
+    }
+
+    .card.show-icon .question {
+      display: none;
+    }
+
+    .card.matched {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .donkey-icon {
+      width: 60px;
+      height: 60px;
+    }
+
+    .win-message {
+      display: none;
+      margin-top: 1.5rem;
+      font-size: 1.4rem;
+      color: #e94560;
+      text-align: center;
+    }
+
+    .win-message.show {
+      display: block;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.6rem 1.8rem;
+      font-size: 1rem;
+      background: #e94560;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #c73652;
+    }
+
+    .settings {
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .game-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .settings label {
+      font-size: 0.95rem;
+      color: #ccc;
+    }
+
+    .settings select {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.95rem;
+      border-radius: 6px;
+      border: 2px solid #0f3460;
+      background: #16213e;
+      color: #e0e0e0;
+      cursor: pointer;
+      margin-left: 0.3rem;
+    }
+
+    .settings select:focus {
+      outline: none;
+      border-color: #e94560;
+    }
+
+    /* Fireworks */
+    .fireworks-container {
+      display: none;
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .fireworks-container.active {
+      display: block;
+    }
+
+    .spark {
+      position: absolute;
+      border-radius: 50%;
+      animation: sparkAnim var(--duration) ease-out forwards;
+    }
+
+    @keyframes sparkAnim {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+      }
+    }
+
+    .rocket-trail {
+      position: absolute;
+      width: 4px;
+      border-radius: 2px;
+      animation: rocketUp var(--rDuration) ease-out forwards;
+    }
+
+    @keyframes rocketUp {
+      0% {
+        height: 0;
+        opacity: 1;
+      }
+      60% {
+        height: var(--rHeight);
+        opacity: 1;
+      }
+      100% {
+        height: var(--rHeight);
+        opacity: 0;
+      }
+    }
+
+    .congrats-text {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 101;
+      text-align: center;
+      animation: congratsIn 0.6s ease-out forwards;
+    }
+
+    .congrats-text.active {
+      display: block;
+    }
+
+    .congrats-text h2 {
+      font-size: 3rem;
+      color: #ffdd57;
+      text-shadow: 0 0 20px rgba(255, 221, 87, 0.6);
+      margin-bottom: 0.5rem;
+    }
+
+    .congrats-text p {
+      font-size: 1.5rem;
+      color: #e94560;
+      text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+    }
+
+    @keyframes congratsIn {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+      60% { transform: translate(-50%, -50%) scale(1.1); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .card.explode {
+      animation: explodeCard 0.8s ease-out forwards;
+    }
+
+    @keyframes explodeCard {
+      0% { transform: scale(1); opacity: 0.7; }
+      30% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0) rotate(180deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Memory Game</h1>
+  <div class="settings" id="settings">
+    <label>Size:
+      <select id="size-select">
+        <option value="small">Small (12 cards)</option>
+        <option value="medium" selected>Medium (16 cards)</option>
+        <option value="large">Large (20 cards)</option>
+        <option value="xl">XL (24 cards)</option>
+        <option value="xxl">XXL (30 cards)</option>
+        <option value="xxxl">XXXL (36 cards)</option>
+      </select>
+    </label>
+    <label>Theme:
+      <select id="theme-select">
+        <option value="animals" selected>Animals</option>
+        <option value="food">Food</option>
+        <option value="sports">Sports</option>
+        <option value="faces">Faces</option>
+      </select>
+    </label>
+    <button onclick="startGame()">Start Game</button>
+  </div>
+  <div class="game-area hidden" id="game-area">
+    <div class="stats">
+      <span>Moves: <strong id="moves">0</strong></span>
+      <span>Pairs: <strong id="pairs">0</strong>/<span id="total-pairs">8</span></span>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="win-message" id="win-message">
+      You won! <br><small id="win-stats"></small>
+    </div>
+    <button onclick="showSettings()">New Game</button>
+  </div>
+  <div class="fireworks-container" id="fireworks"></div>
+  <div class="congrats-text" id="congrats">
+    <h2>FULL DONKEY!</h2>
+    <p>Congratulations on achieving Full Donkey!</p>
+  </div>
+
+  <script>
+    const themes = {
+      animals: ['\u{1F436}','\u{1F431}','\u{1F438}','\u{1F98A}','\u{1F43B}','\u{1F43C}','\u{1F42F}','\u{1F981}','\u{1F435}','\u{1F42E}','\u{1F427}','\u{1F422}','\u{1F40D}','\u{1F419}','\u{1F41D}','\u{1F433}','\u{1F418}','\u{1F992}'],
+      food:    ['\u{1F355}','\u{1F354}','\u{1F32E}','\u{1F363}','\u{1F369}','\u{1F366}','\u{1F36A}','\u{1F370}','\u{1F35F}','\u{1F32D}','\u{1F34E}','\u{1F34C}','\u{1F347}','\u{1F352}','\u{1F95E}','\u{1F9C1}','\u{1F37F}','\u{1F96F}'],
+      sports:  ['\u{26BD}', '\u{1F3C0}','\u{1F3C8}','\u{26BE}', '\u{1F3BE}','\u{1F3D0}','\u{1F3D2}','\u{26F3}', '\u{1F94A}','\u{1F3CF}','\u{1F3C4}','\u{1F6B4}','\u{1F3CB}','\u{1F93C}','\u{1F3AF}','\u{1F3B3}','\u{1F94D}','\u{1F93A}'],
+      faces:   ['\u{1F600}','\u{1F602}','\u{1F60D}','\u{1F60E}','\u{1F609}','\u{1F914}','\u{1F973}','\u{1F929}','\u{1F913}','\u{1F921}','\u{1F60B}','\u{1F634}','\u{1F631}','\u{1F47B}','\u{1F608}','\u{1F976}','\u{1F975}','\u{1F971}'],
+    };
+
+    const sizes = {
+      small:  { pairs: 6,  cols: 4 },
+      medium: { pairs: 8,  cols: 4 },
+      large:  { pairs: 10, cols: 5 },
+      xl:     { pairs: 12, cols: 6 },
+      xxl:    { pairs: 15, cols: 6 },
+      xxxl:   { pairs: 18, cols: 6 },
+    };
+
+    const donkeySvg = `<span style="font-size:1rem;color:#e94560;font-weight:bold;margin-bottom:4px">Donkey!</span><svg class="donkey-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="50" cy="62" rx="22" ry="28" fill="#8B7355"/>
+      <circle cx="50" cy="30" r="16" fill="#8B7355"/>
+      <polygon points="38,18 34,2 42,14" fill="#A0896C" stroke="#6B5340" stroke-width="1"/>
+      <polygon points="62,18 66,2 58,14" fill="#A0896C" stroke="#6B5340" stroke-width="1"/>
+      <ellipse cx="50" cy="38" rx="8" ry="6" fill="#A0896C"/>
+      <circle cx="45" cy="28" r="1.5" fill="#333"/>
+      <circle cx="55" cy="28" r="1.5" fill="#333"/>
+      <circle cx="47" cy="38" r="1" fill="#333"/>
+      <circle cx="53" cy="38" r="1" fill="#333"/>
+      <line x1="38" y1="90" x2="38" y2="78" stroke="#8B7355" stroke-width="5" stroke-linecap="round"/>
+      <line x1="62" y1="90" x2="62" y2="78" stroke="#8B7355" stroke-width="5" stroke-linecap="round"/>
+      <path d="M72,55 Q85,50 80,65" fill="none" stroke="#8B7355" stroke-width="3" stroke-linecap="round"/>
+    </svg>`;
+
+    let flippedCards, matchedPairs, totalPairs, moves, locked;
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initGame() {
+      const sizeKey = document.getElementById('size-select').value;
+      const themeKey = document.getElementById('theme-select').value;
+      const { pairs, cols } = sizes[sizeKey];
+      const icons = themes[themeKey].slice(0, pairs);
+
+      totalPairs = pairs;
+      flippedCards = [];
+      matchedPairs = 0;
+      moves = 0;
+      locked = false;
+      document.getElementById('moves').textContent = 0;
+      document.getElementById('pairs').textContent = 0;
+      document.getElementById('total-pairs').textContent = pairs;
+      document.getElementById('win-message').classList.remove('show');
+      document.getElementById('fireworks').classList.remove('active');
+      document.getElementById('congrats').classList.remove('active');
+
+      const board = document.getElementById('board');
+      board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      board.innerHTML = '';
+
+      const deck = shuffle([...icons, ...icons]);
+      deck.forEach((icon) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.icon = icon;
+        card.innerHTML = `<span class="question">?</span><span class="icon">${icon}</span>`;
+        card.addEventListener('click', () => flipCard(card));
+        board.appendChild(card);
+      });
+    }
+
+    function animateFlip(card, toFaceUp) {
+      return new Promise(resolve => {
+        // First half: rotate to 90deg (edge-on)
+        card.classList.remove('flipped');
+        card.classList.add('flipping');
+
+        setTimeout(() => {
+          // At midpoint, swap content visibility
+          if (toFaceUp) {
+            card.classList.add('show-icon');
+          } else {
+            card.classList.remove('show-icon');
+          }
+          // Second half: rotate from 90 to 180 (or back to 0)
+          card.classList.remove('flipping');
+          if (toFaceUp) {
+            card.classList.add('flipped');
+          }
+          setTimeout(resolve, 250);
+        }, 250);
+      });
+    }
+
+    function flipCard(card) {
+      if (locked || card.classList.contains('show-icon') || card.classList.contains('matched')) return;
+
+      locked = true;
+      animateFlip(card, true).then(() => {
+        flippedCards.push(card);
+
+        if (flippedCards.length === 2) {
+          moves++;
+          document.getElementById('moves').textContent = moves;
+
+          const [a, b] = flippedCards;
+          if (a.dataset.icon === b.dataset.icon) {
+            // Show the match briefly, then flip both back and re-reveal as donkeys
+            setTimeout(() => {
+              // Single flip: rotate to 90deg, swap to donkey, rotate to 180deg
+              a.classList.remove('flipped');
+              b.classList.remove('flipped');
+              a.classList.add('flipping');
+              b.classList.add('flipping');
+
+              setTimeout(() => {
+                // At midpoint, swap content to donkey
+                a.querySelector('.icon').innerHTML = donkeySvg;
+                b.querySelector('.icon').innerHTML = donkeySvg;
+                a.classList.remove('flipping');
+                b.classList.remove('flipping');
+                a.classList.add('flipped');
+                b.classList.add('flipped');
+
+                setTimeout(() => {
+                  a.classList.add('matched');
+                  b.classList.add('matched');
+                  matchedPairs++;
+                  document.getElementById('pairs').textContent = matchedPairs;
+                  flippedCards = [];
+                  locked = false;
+
+                  if (matchedPairs === totalPairs) {
+                    setTimeout(() => celebrateWin(), 300);
+                  }
+                }, 250);
+              }, 250);
+            }, 400);
+          } else {
+            setTimeout(async () => {
+              await Promise.all([animateFlip(a, false), animateFlip(b, false)]);
+              flippedCards = [];
+              locked = false;
+            }, 500);
+          }
+        } else {
+          locked = false;
+        }
+      });
+    }
+
+    function celebrateWin() {
+      // Explode cards
+      document.querySelectorAll('.card').forEach((card, i) => {
+        setTimeout(() => card.classList.add('explode'), i * 60);
+      });
+
+      // Start fireworks after cards explode
+      setTimeout(() => {
+        launchFireworks();
+        document.getElementById('congrats').classList.add('active');
+      }, 600);
+
+      // Show win message after fireworks settle
+      setTimeout(() => {
+        const msg = document.getElementById('win-message');
+        document.getElementById('win-stats').textContent = `Completed in ${moves} moves`;
+        msg.classList.add('show');
+      }, 1500);
+    }
+
+    function launchFireworks() {
+      const container = document.getElementById('fireworks');
+      container.innerHTML = '';
+      container.classList.add('active');
+
+      const colors = ['#e94560','#ffdd57','#ff6b6b','#4ecdc4','#ffe66d','#ff8a5c','#a855f7','#38bdf8'];
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      function createBurst(cx, cy) {
+        const count = 120;
+        for (let i = 0; i < count; i++) {
+          const angle = (Math.PI * 2 / count) * i + Math.random() * 0.3;
+          const dist = 100 + Math.random() * 300;
+          const tx = Math.cos(angle) * dist;
+          const ty = Math.sin(angle) * dist;
+          const dur = 1.5 + Math.random() * 2;
+          const size = 2 + Math.random() * 5;
+          const color = colors[Math.floor(Math.random() * colors.length)];
+
+          const spark = document.createElement('div');
+          spark.className = 'spark';
+          spark.style.cssText = `
+            left: ${cx}px; top: ${cy}px;
+            width: ${size}px; height: ${size}px;
+            background: ${color};
+            box-shadow: 0 0 ${size * 2}px ${color}, 0 0 ${size * 4}px ${color};
+            --tx: ${tx}px; --ty: ${ty}px;
+            --duration: ${dur}s;
+          `;
+          container.appendChild(spark);
+
+          setTimeout(() => spark.remove(), dur * 1000);
+        }
+
+        // Add a rocket trail leading up to the burst
+        const trail = document.createElement('div');
+        const trailHeight = h - cy;
+        trail.className = 'rocket-trail';
+        trail.style.cssText = `
+          left: ${cx}px; bottom: 0;
+          background: linear-gradient(to top, transparent, ${colors[Math.floor(Math.random() * colors.length)]});
+          --rHeight: ${trailHeight}px;
+          --rDuration: 0.6s;
+        `;
+        container.appendChild(trail);
+        setTimeout(() => trail.remove(), 600);
+      }
+
+      // Stagger many bursts over 5 seconds
+      const burstCount = 20;
+      for (let i = 0; i < burstCount; i++) {
+        const delay = i * 250 + Math.random() * 150;
+        setTimeout(() => {
+          createBurst(
+            w * 0.1 + Math.random() * w * 0.8,
+            h * 0.1 + Math.random() * h * 0.5
+          );
+        }, delay);
+      }
+
+      // Clean up after all animations
+      setTimeout(() => {
+        container.innerHTML = '';
+        container.classList.remove('active');
+      }, 8000);
+    }
+
+    function startGame() {
+      document.getElementById('settings').classList.add('hidden');
+      document.getElementById('game-area').classList.remove('hidden');
+      initGame();
+    }
+
+    function showSettings() {
+      document.getElementById('game-area').classList.add('hidden');
+      document.getElementById('settings').classList.remove('hidden');
+      document.getElementById('fireworks').classList.remove('active');
+      document.getElementById('congrats').classList.remove('active');
+    }
+  </script>
+</body>
+</html>
