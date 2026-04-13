@@ -134,9 +134,13 @@
         }
 
         .wizard-img {
-            width: 120px;
-            height: 120px;
+            width: 160px;
+            height: 160px;
             margin: 0 auto 1rem;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: top;
+            border: 2px solid rgba(160, 120, 255, 0.4);
             filter: drop-shadow(0 0 20px rgba(160, 120, 255, 0.5));
         }
 
@@ -208,7 +212,7 @@
     <div class="stars"><canvas id="stars"></canvas></div>
     <div class="content">
         <h1>tmcn.us</h1>
-        <p class="tagline">building the future, one <a href="#" id="game-link" style="color: rgba(200, 180, 255, 0.9); text-decoration: none; border-bottom: 1px solid rgba(200, 180, 255, 0.4); transition: color 0.2s, border-color 0.2s;">game</a> at a time</p>
+        <p class="tagline">building the future, one <a href="#" id="game-link" style="color: rgba(200, 180, 255, 0.9); text-decoration: none; border-bottom: 1px solid rgba(200, 180, 255, 0.4); transition: color 0.2s, border-color 0.2s;">line</a> at a time</p>
     </div>
     <div class="modal-overlay" id="modal">
         <div class="modal">
@@ -217,41 +221,7 @@
                 <span></span><span></span><span></span>
                 <span></span><span></span><span></span>
             </div>
-            <svg class="wizard-img" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                <!-- Hat -->
-                <polygon points="60,2 42,50 78,50" fill="#2a1860" stroke="#7c5cbf" stroke-width="1"/>
-                <ellipse cx="60" cy="50" rx="22" ry="5" fill="#2a1860" stroke="#7c5cbf" stroke-width="1"/>
-                <!-- Stars on hat -->
-                <circle cx="55" cy="20" r="2" fill="#ffdd57" opacity="0.9"/>
-                <circle cx="65" cy="32" r="1.5" fill="#ffdd57" opacity="0.7"/>
-                <circle cx="52" cy="38" r="1" fill="#ffdd57" opacity="0.8"/>
-                <!-- Face -->
-                <circle cx="60" cy="62" r="14" fill="#f0d5b0"/>
-                <!-- Eyes -->
-                <circle cx="55" cy="60" r="2" fill="#2a1860"/>
-                <circle cx="65" cy="60" r="2" fill="#2a1860"/>
-                <circle cx="55.5" cy="59.5" r="0.7" fill="white"/>
-                <circle cx="65.5" cy="59.5" r="0.7" fill="white"/>
-                <!-- Eyebrows -->
-                <path d="M51,56 Q55,53 59,56" fill="none" stroke="#8a7060" stroke-width="1"/>
-                <path d="M61,56 Q65,53 69,56" fill="none" stroke="#8a7060" stroke-width="1"/>
-                <!-- Nose -->
-                <ellipse cx="60" cy="64" rx="2" ry="2.5" fill="#e0c0a0"/>
-                <!-- Smile -->
-                <path d="M55,69 Q60,73 65,69" fill="none" stroke="#8a6050" stroke-width="1" stroke-linecap="round"/>
-                <!-- Beard -->
-                <path d="M46,68 Q48,85 54,95 Q58,100 60,100 Q62,100 66,95 Q72,85 74,68" fill="#e8e0d8" stroke="#d0c8c0" stroke-width="0.5"/>
-                <path d="M50,75 Q55,78 60,76" fill="none" stroke="#d0c8c0" stroke-width="0.5"/>
-                <path d="M60,76 Q65,78 70,75" fill="none" stroke="#d0c8c0" stroke-width="0.5"/>
-                <path d="M52,82 Q57,85 62,83" fill="none" stroke="#d0c8c0" stroke-width="0.5"/>
-                <!-- Robe -->
-                <path d="M42,76 L30,115 L90,115 L78,76" fill="#1a1050" stroke="#5a3cbf" stroke-width="0.5"/>
-                <!-- Staff glow -->
-                <circle cx="28" cy="45" r="6" fill="rgba(160,120,255,0.3)"/>
-                <circle cx="28" cy="45" r="3" fill="rgba(200,180,255,0.6)"/>
-                <!-- Staff -->
-                <line x1="28" y1="48" x2="35" y2="115" stroke="#8a7060" stroke-width="2.5" stroke-linecap="round"/>
-            </svg>
+            <img class="wizard-img" src="/images/merlin.jpg" alt="Merlin the Wizard" />
             <h2>First, say the magic word...</h2>
             <input type="password" id="magic-input" placeholder="speak, friend..." autocomplete="off" />
             <p class="modal-hint">the wizard awaits your incantation</p>
@@ -273,7 +243,7 @@
                 if (this.value.trim().toLowerCase() === 'please wish') {
                     document.getElementById('modal').classList.remove('active');
                     sessionStorage.setItem('magic', btoa(Date.now().toString()));
-                    window.location.href = '/MemoryGame/';
+                    window.location.href = '/apps/';
                 } else {
                     this.classList.add('wrong');
                     setTimeout(() => this.classList.remove('wrong'), 400);
