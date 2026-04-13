@@ -142,6 +142,37 @@
             font-size: 0.7rem;
             color: #e94560;
         }
+        .cube-preview {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            background: linear-gradient(135deg, #0d0d2b, #1a1040);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            perspective: 300px;
+        }
+
+        .cube-face {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+            width: 80px;
+            height: 80px;
+        }
+
+        .cube-face.top {
+            transform: rotateX(30deg) skewX(-10deg);
+        }
+
+        .cube-face.front {
+            transform: rotateX(-5deg) skewX(-10deg);
+        }
+
+        .cube-face span {
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -173,6 +204,25 @@
             <div class="app-card-body">
                 <h2>Memory Game</h2>
                 <p>A card-flipping memory game with multiple themes, board sizes, and a celebratory donkey surprise when you match pairs. Can you achieve Full Donkey?</p>
+            </div>
+        </a>
+
+        <a class="app-card" href="/CubeSolver/">
+            <div class="cube-preview">
+                <div class="cube-face top">
+                    <span style="background:#fff"></span><span style="background:#ff0"></span><span style="background:#fff"></span>
+                    <span style="background:#f00"></span><span style="background:#fff"></span><span style="background:#00f"></span>
+                    <span style="background:#0a0"></span><span style="background:#fff"></span><span style="background:#f80"></span>
+                </div>
+                <div class="cube-face front">
+                    <span style="background:#f00"></span><span style="background:#0a0"></span><span style="background:#ff0"></span>
+                    <span style="background:#f80"></span><span style="background:#f00"></span><span style="background:#fff"></span>
+                    <span style="background:#00f"></span><span style="background:#f00"></span><span style="background:#0a0"></span>
+                </div>
+            </div>
+            <div class="app-card-body">
+                <h2>Cube Solver</h2>
+                <p>Input your Rubik's Cube configuration, scan it with a photo, or randomize one — then watch the step-by-step 3D animated solution.</p>
             </div>
         </a>
     </div>
