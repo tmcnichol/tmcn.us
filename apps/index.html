@@ -71,7 +71,8 @@
             transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
             text-decoration: none;
             color: #fff;
-            display: block;
+            display: flex;
+            flex-direction: column;
         }
 
         .app-card:hover {
@@ -87,8 +88,18 @@
             border-bottom: 1px solid rgba(160, 120, 255, 0.15);
         }
 
+        .app-preview {
+            width: 100%;
+            height: 200px;
+            border-bottom: 1px solid rgba(160, 120, 255, 0.15);
+            overflow: hidden;
+        }
+
         .app-card-body {
             padding: 1.2rem 1.4rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .app-card-body h2 {
@@ -119,10 +130,10 @@
             color: rgba(200, 180, 255, 0.8);
         }
 
-        /* Preview placeholder for Memory Game */
+        /* Memory Game preview */
         .memory-preview {
             width: 100%;
-            aspect-ratio: 16 / 10;
+            height: 100%;
             background: linear-gradient(135deg, #1a1a2e, #16213e);
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -142,36 +153,65 @@
             font-size: 0.7rem;
             color: #e94560;
         }
+
+        /* 3D Cube preview */
         .cube-preview {
             width: 100%;
-            aspect-ratio: 16 / 10;
+            height: 100%;
             background: linear-gradient(135deg, #0d0d2b, #1a1040);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            perspective: 300px;
+            perspective: 400px;
         }
 
-        .cube-face {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 3px;
+        .cube-scene {
             width: 80px;
             height: 80px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: cubeRotate 8s ease-in-out infinite;
         }
 
-        .cube-face.top {
-            transform: rotateX(30deg) skewX(-10deg);
+        @keyframes cubeRotate {
+            0%   { transform: rotateX(-25deg) rotateY(-35deg); }
+            25%  { transform: rotateX(-15deg) rotateY(55deg); }
+            50%  { transform: rotateX(20deg) rotateY(145deg); }
+            75%  { transform: rotateX(-10deg) rotateY(235deg); }
+            100% { transform: rotateX(-25deg) rotateY(325deg); }
         }
 
-        .cube-face.front {
-            transform: rotateX(-5deg) skewX(-10deg);
+        .cube-side {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            padding: 2px;
+            background: #111;
+            border-radius: 4px;
         }
 
-        .cube-face span {
-            border-radius: 3px;
-            border: 1px solid rgba(0,0,0,0.3);
+        .cube-side span {
+            border-radius: 2px;
+        }
+
+        .cube-side.front  { transform: translateZ(40px); }
+        .cube-side.back   { transform: rotateY(180deg) translateZ(40px); }
+        .cube-side.left   { transform: rotateY(-90deg) translateZ(40px); }
+        .cube-side.right  { transform: rotateY(90deg) translateZ(40px); }
+        .cube-side.top    { transform: rotateX(90deg) translateZ(40px); }
+        .cube-side.bottom { transform: rotateX(-90deg) translateZ(40px); }
+
+        /* Scramble animation: cycle sticker colors */
+        .cube-side span {
+            animation: stickerCycle 6s ease-in-out infinite;
+        }
+
+        @keyframes stickerCycle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
         }
     </style>
 </head>
@@ -183,23 +223,25 @@
 
     <div class="apps-grid">
         <a class="app-card" href="/MemoryGame/">
-            <div class="memory-preview">
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
-                <div class="preview-card">?</div>
+            <div class="app-preview">
+                <div class="memory-preview">
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                    <div class="preview-card">?</div>
+                </div>
             </div>
             <div class="app-card-body">
                 <h2>Memory Game</h2>
@@ -208,16 +250,16 @@
         </a>
 
         <a class="app-card" href="/CubeSolver/">
-            <div class="cube-preview">
-                <div class="cube-face top">
-                    <span style="background:#fff"></span><span style="background:#ff0"></span><span style="background:#fff"></span>
-                    <span style="background:#f00"></span><span style="background:#fff"></span><span style="background:#00f"></span>
-                    <span style="background:#0a0"></span><span style="background:#fff"></span><span style="background:#f80"></span>
-                </div>
-                <div class="cube-face front">
-                    <span style="background:#f00"></span><span style="background:#0a0"></span><span style="background:#ff0"></span>
-                    <span style="background:#f80"></span><span style="background:#f00"></span><span style="background:#fff"></span>
-                    <span style="background:#00f"></span><span style="background:#f00"></span><span style="background:#0a0"></span>
+            <div class="app-preview">
+                <div class="cube-preview" id="cube-preview">
+                    <div class="cube-scene">
+                        <div class="cube-side front"></div>
+                        <div class="cube-side back"></div>
+                        <div class="cube-side left"></div>
+                        <div class="cube-side right"></div>
+                        <div class="cube-side top"></div>
+                        <div class="cube-side bottom"></div>
+                    </div>
                 </div>
             </div>
             <div class="app-card-body">
@@ -228,5 +270,53 @@
     </div>
 
     <a class="back-link" href="/">&larr; back to tmcn.us</a>
+
+    <script>
+        const cubeColors = ['#fff', '#ff0', '#f00', '#f80', '#00f', '#0a0'];
+        const solvedFaces = {
+            front: '#f00', back: '#f80', left: '#0a0',
+            right: '#00f', top: '#fff', bottom: '#ff0'
+        };
+
+        function randomColor() {
+            return cubeColors[Math.floor(Math.random() * cubeColors.length)];
+        }
+
+        function fillFace(side, color) {
+            side.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const span = document.createElement('span');
+                span.style.background = typeof color === 'string' ? color : randomColor();
+                span.style.transition = 'background 0.6s ease';
+                side.appendChild(span);
+            }
+        }
+
+        function scrambleCube() {
+            document.querySelectorAll('.cube-side').forEach(side => fillFace(side, null));
+        }
+
+        function solveCube() {
+            document.querySelectorAll('.cube-side').forEach(side => {
+                const faceClass = [...side.classList].find(c => c !== 'cube-side');
+                const color = solvedFaces[faceClass] || '#fff';
+                side.querySelectorAll('span').forEach((span, i) => {
+                    setTimeout(() => { span.style.background = color; }, i * 80);
+                });
+            });
+        }
+
+        // Init scrambled, then cycle solve/scramble
+        scrambleCube();
+        let solved = false;
+        setInterval(() => {
+            if (solved) {
+                scrambleCube();
+            } else {
+                solveCube();
+            }
+            solved = !solved;
+        }, 3000);
+    </script>
 </body>
 </html>
