@@ -253,7 +253,7 @@
                 <line x1="28" y1="48" x2="35" y2="115" stroke="#8a7060" stroke-width="2.5" stroke-linecap="round"/>
             </svg>
             <h2>First, say the magic word...</h2>
-            <input type="text" id="magic-input" placeholder="speak, friend..." autocomplete="off" />
+            <input type="password" id="magic-input" placeholder="speak, friend..." autocomplete="off" />
             <p class="modal-hint">the wizard awaits your incantation</p>
         </div>
     </div>
@@ -272,6 +272,7 @@
             if (e.key === 'Enter') {
                 if (this.value.trim().toLowerCase() === 'please wish') {
                     document.getElementById('modal').classList.remove('active');
+                    sessionStorage.setItem('magic', btoa(Date.now().toString()));
                     window.location.href = '/MemoryGame/';
                 } else {
                     this.classList.add('wrong');
